@@ -1,0 +1,344 @@
+/* ============================================================
+   AI Grading System — Global Stylesheet
+   ------------------------------------------------------------
+   Light theme · Sky (#0EA5E9) + Yellow (#FCD34D)
+   1rem radius · Soft shadows · Gradient brand mark
+   Belleza display font
+
+   ┌────────────────────────────────────────────────────────┐
+   │  HOW TO CUSTOMIZE THIS FILE                            │
+   ├────────────────────────────────────────────────────────┤
+   │  1. THEME TOKENS  →  search for `:root` block below    │
+   │     - Brand colours   (--brand, --brand-accent)        │
+   │     - Radius         (--radius)                        │
+   │     - Shadows        (--shadow-*)                       │
+   │  2. FONT TOKENS   →  search for `Typography` block     │
+   │     - --font-display  = Belleza (headings)             │
+   │     - --font-body     = system sans-serif (paragraphs) │
+   │     - --font-mono     = ui-monospace (code/data)       │
+   │  3. GRADIENTS     →  search for `Brand gradient` block │
+   │     - .brand-gradient-text / .brand-gradient-bg        │
+   │  4. COMPONENT HINTS→  end of file (.card-soft, etc.)  │
+   └────────────────────────────────────────────────────────┘
+   ============================================================ */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------
+   Tailwind theme wiring — exposes our CSS variables to
+   utility classes (bg-background, text-foreground, etc.).
+   ------------------------------------------------------------ */
+@theme inline {
+  /* Colours */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Brand (custom — sky & yellow) */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-foreground: var(--brand-accent-foreground);
+
+  /* Fonts — see Typography block below to swap fonts in 1 line */
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
+
+  /* Radius — change ONE number to reskin the entire app */
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  /* Soft shadows */
+  --shadow-soft-xs: 0 1px 2px 0 rgb(14 165 233 / 0.04), 0 1px 3px 0 rgb(14 165 233 / 0.06);
+  --shadow-soft-sm: 0 2px 4px -2px rgb(14 165 233 / 0.06), 0 4px 6px -1px rgb(15 23 42 / 0.04);
+  --shadow-soft-md: 0 4px 8px -2px rgb(14 165 233 / 0.08), 0 6px 12px -4px rgb(15 23 42 / 0.06);
+  --shadow-soft-lg: 0 8px 16px -4px rgb(14 165 233 / 0.10), 0 12px 24px -8px rgb(15 23 42 / 0.08);
+  --shadow-soft-xl: 0 16px 32px -8px rgb(14 165 233 / 0.12), 0 24px 48px -16px rgb(15 23 42 / 0.10);
+  --shadow-glow: 0 0 0 4px rgb(14 165 233 / 0.15), 0 8px 24px -6px rgb(14 165 233 / 0.25);
+
+  /* Charts */
+  --color-chart-1: var(--brand);
+  --color-chart-2: var(--brand-accent);
+  --color-chart-3: oklch(0.62 0.18 264);
+  --color-chart-4: oklch(0.72 0.16 152);
+  --color-chart-5: oklch(0.68 0.18 18);
+
+  /* Sidebar (kept for shadcn shell compatibility) */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* ============================================================
+   THEME TOKENS  ← edit these to reskin the entire app
+   ============================================================ */
+:root {
+  /* ---- Radius ----  change this single value to reskin */
+  --radius: 1rem;
+
+  /* ---- Surfaces ----  light theme, near-white cards */
+  --background: oklch(0.99 0.005 220);          /* warm white */
+  --foreground: oklch(0.21 0.03 230);           /* slate-900 */
+  --card: oklch(1 0 0);                          /* pure white */
+  --card-foreground: oklch(0.21 0.03 230);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.03 230);
+  --muted: oklch(0.97 0.01 220);
+  --muted-foreground: oklch(0.52 0.02 230);
+  --secondary: oklch(0.96 0.01 220);
+  --secondary-foreground: oklch(0.24 0.03 230);
+  --border: oklch(0.92 0.01 220);
+  --input: oklch(0.92 0.01 220);
+  --ring: var(--brand);
+
+  /* ---- Brand — Sky (#0EA5E9) ---- */
+  --brand: oklch(0.71 0.165 227);               /* sky-500 #0EA5E9 */
+  --brand-foreground: oklch(1 0 0);              /* white text on sky */
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+
+  /* ---- Brand accent — Yellow (#FCD34D) ---- */
+  --brand-accent: oklch(0.94 0.155 88);          /* yellow-300 #FCD34D */
+  --brand-accent-foreground: oklch(0.21 0.03 60); /* dark slate on yellow */
+  --accent: var(--brand-accent);
+  --accent-foreground: var(--brand-accent-foreground);
+
+  /* ---- Destructive ---- */
+  --destructive: oklch(0.58 0.24 27);
+  --destructive-foreground: oklch(1 0 0);
+
+  /* ---- Sidebar (kept neutral; we use top nav not sidebar) ---- */
+  --sidebar: oklch(0.99 0.005 220);
+  --sidebar-foreground: oklch(0.21 0.03 230);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.96 0.01 220);
+  --sidebar-accent-foreground: oklch(0.21 0.03 230);
+  --sidebar-border: oklch(0.92 0.01 220);
+  --sidebar-ring: var(--brand);
+}
+
+/* ============================================================
+   DARK THEME  (kept for power users; default is light)
+   Comment out the .dark block if you want to ship light-only.
+   ============================================================ */
+.dark {
+  --background: oklch(0.18 0.02 230);
+  --foreground: oklch(0.96 0.01 220);
+  --card: oklch(0.21 0.02 230);
+  --card-foreground: oklch(0.96 0.01 220);
+  --popover: oklch(0.21 0.02 230);
+  --popover-foreground: oklch(0.96 0.01 220);
+  --muted: oklch(0.27 0.02 230);
+  --muted-foreground: oklch(0.70 0.02 220);
+  --secondary: oklch(0.27 0.02 230);
+  --secondary-foreground: oklch(0.96 0.01 220);
+  --border: oklch(0.34 0.02 230);
+  --input: oklch(0.34 0.02 230);
+  --ring: var(--brand);
+
+  --brand: oklch(0.74 0.155 227);
+  --brand-foreground: oklch(0.13 0.02 230);
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+
+  --brand-accent: oklch(0.92 0.155 88);
+  --brand-accent-foreground: oklch(0.21 0.03 60);
+  --accent: var(--brand-accent);
+  --accent-foreground: var(--brand-accent-foreground);
+
+  --destructive: oklch(0.70 0.20 22);
+  --destructive-foreground: oklch(1 0 0);
+
+  --sidebar: oklch(0.21 0.02 230);
+  --sidebar-foreground: oklch(0.96 0.01 220);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: var(--brand-foreground);
+  --sidebar-accent: oklch(0.27 0.02 230);
+  --sidebar-accent-foreground: oklch(0.96 0.01 220);
+  --sidebar-border: oklch(0.34 0.02 230);
+  --sidebar-ring: var(--brand);
+}
+
+/* ============================================================
+   Typography
+   ------------------------------------------------------------
+   To change the heading or body font for the whole app:
+     1. Edit src/app/layout.tsx — import the new Google font,
+        expose it as `--font-belleza` (or a new variable).
+     2. Update ONE line below:
+          --font-display: var(--font-belleza), ...
+   That's it. Everything else reflows automatically.
+   ============================================================ */
+:root {
+  --font-display: var(--font-belleza), "Belleza", "Georgia", serif;
+  --font-body: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", "JetBrains Mono",
+    "Fira Code", Consolas, monospace;
+}
+
+/* ============================================================
+   Base layer
+   ============================================================ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    font-feature-settings: "cv01", "ss01";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+  ::selection {
+    background: oklch(0.94 0.155 88);
+    color: oklch(0.21 0.03 60);
+  }
+}
+
+/* ============================================================
+   Brand gradient  ← gradient brand mark
+   ------------------------------------------------------------
+   .brand-gradient-text   → gradient text (use on logo wordmark)
+   .brand-gradient-bg      → gradient background (use on cards)
+   .brand-gradient-border  → 1px gradient border (use on hero cards)
+   ============================================================ */
+@layer utilities {
+  .brand-gradient-text {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .brand-gradient-bg {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-accent) 100%);
+  }
+
+  .brand-gradient-bg-soft {
+    background: linear-gradient(135deg,
+      color-mix(in oklch, var(--brand) 12%, white) 0%,
+      color-mix(in oklch, var(--brand-accent) 18%, white) 100%);
+  }
+
+  .brand-gradient-border {
+    position: relative;
+    background-clip: padding-box;
+    border: 1px solid transparent;
+  }
+  .brand-gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    margin: -1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-accent) 100%);
+  }
+
+  .shadow-soft-xs { box-shadow: var(--shadow-soft-xs); }
+  .shadow-soft-sm { box-shadow: var(--shadow-soft-sm); }
+  .shadow-soft-md { box-shadow: var(--shadow-soft-md); }
+  .shadow-soft-lg { box-shadow: var(--shadow-soft-lg); }
+  .shadow-soft-xl { box-shadow: var(--shadow-soft-xl); }
+  .shadow-glow    { box-shadow: var(--shadow-glow); }
+
+  /* Custom scrollbar for max-h scroll areas */
+  .scroll-soft {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--brand) 35%, transparent) transparent;
+  }
+  .scroll-soft::-webkit-scrollbar { width: 8px; height: 8px; }
+  .scroll-soft::-webkit-scrollbar-track { background: transparent; }
+  .scroll-soft::-webkit-scrollbar-thumb {
+    background: color-mix(in oklch, var(--brand) 35%, transparent);
+    border-radius: 999px;
+  }
+  .scroll-soft::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklch, var(--brand) 55%, transparent);
+  }
+
+  .font-display { font-family: var(--font-display); }
+  .font-body    { font-family: var(--font-body); }
+  .font-mono    { font-family: var(--font-mono); }
+
+  /* Subtle entrance animation for grading steps */
+  .animate-rise {
+    animation: rise 0.4s ease-out both;
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* ============================================================
+   Component hints  (apply as className on top of shadcn)
+   ------------------------------------------------------------
+   .card-soft   → bg-card + soft shadow + radius
+   .glass-soft  → translucent backdrop (header)
+   .pill        → small rounded badge
+   ============================================================ */
+@layer components {
+  .card-soft {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft-md);
+    border: 1px solid color-mix(in oklch, var(--brand) 8%, var(--border));
+  }
+  .glass-soft {
+    background: color-mix(in oklch, var(--card) 80%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 500;
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "slug": "data-science",
+  "title": "Data Science — Mock Exam",
+  "description": "Mock rubric adapted from the original Colab notebook. Questions 25, 27, 29.",
+  "questions": {
+    "25": {
+      "question": "Name 2 major applications of data science.",
+      "model_answer": "Machine learning used to train models or agents to predict, classify or perform tasks (e.g. ChatGPT). Data Analysis used in Big Data or financial sectors to gather data and depict patterns.",
+      "keywords": ["machine", "learning", "predict", "analysis", "data", "patterns"],
+      "max_marks": 5.0
+    },
+    "27": {
+      "question": "How do you find an Outlier in the Data?",
+      "model_answer": "Plot data to find unusual or abnormal data points. Calculate the median or use boxplots. If a point is far from the middle, it is an outlier.",
+      "keywords": ["plot", "abnormal", "median", "boxplot", "outlier"],
+      "max_marks": 5.0
+    },
+    "29": {
+      "question": "Explain K-NN and why normalization is required.",
+      "model_answer": "K-NN is an algorithm that gathers possible cases and classifies a new case based on similarity. Normalization is required so similarity calculation is on a specific range like min-max regression or Z-score.",
+      "keywords": ["algorithm", "classify", "similarity", "normalization", "range", "min-max", "z-score"],
+      "max_marks": 5.0
+    }
+  }
+}

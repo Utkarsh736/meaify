@@ -1,0 +1,25 @@
+{
+  "slug": "general-knowledge",
+  "title": "General Knowledge — Mock Exam",
+  "description": "Mock rubric for a 3-question general-knowledge exam.",
+  "questions": {
+    "1": {
+      "question": "What are the three branches of government in a democracy?",
+      "model_answer": "Legislature, Executive, and Judiciary. They ensure separation of powers and checks and balances.",
+      "keywords": ["legislature", "executive", "judiciary", "separation", "powers", "checks"],
+      "max_marks": 5.0
+    },
+    "2": {
+      "question": "Explain the water cycle in brief.",
+      "model_answer": "Water evaporates from seas/lakes due to sun, forms clouds through condensation, and returns as rain through precipitation. Runoff flows back to water bodies.",
+      "keywords": ["evaporation", "condensation", "precipitation", "rain", "clouds", "runoff"],
+      "max_marks": 5.0
+    },
+    "3": {
+      "question": "Who wrote 'Romeo and Juliet' and in what year was it first published?",
+      "model_answer": "Written by William Shakespeare. First published in 1597.",
+      "keywords": ["shakespeare", "william", "1597", "play", "published"],
+      "max_marks": 3.0
+    }
+  }
+}

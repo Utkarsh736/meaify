@@ -1,0 +1,77 @@
+// Prisma schema for AI Grading System
+// SQLite is used so the project remains self-contained and easy to host
+// on Vercel, Cloudflare Pages, or any static-ish host (see README).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// A single submitted answer sheet. One image -> one submission.
+model Submission {
+  id          String       @id @default(cuid())
+  /// File name or slugified identifier (e.g. "student-1-sheet")
+  slug        String       @unique
+  fileName    String
+  /// Relative path or data-URL of the uploaded sheet image
+  imageUrl    String
+  /// Which rubric file was used (e.g. "data-science.json")
+  rubricId    String
+  /// Total weighted score across all answered questions
+  totalScore  Float        @default(0)
+  /// Sum of max_marks across all rubric questions
+  totalMax    Float        @default(0)
+  /// Raw OCR transcript produced by the vision model
+  ocrText     String
+  /// Wall-clock OCR latency in milliseconds
+  ocrLatency  Int          @default(0)
+  /// Vision provider that produced the winning OCR ("groq" | "gemini")
+  ocrProvider String       @default("groq")
+  createdAt   DateTime     @default(now())
+  evaluations Evaluation[]
+
+  @@index([rubricId])
+  @@index([createdAt])
+}
+
+/// Per-question evaluation result for a submission.
+model Evaluation {
+  id              String      @id @default(cuid())
+  submissionId    String
+  submission      Submission  @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  questionId      String
+  questionText    String
+  studentAnswer   String
+  modelAnswer     String
+  keywords        String      // JSON-serialized string[]
+  maxMarks        Float
+  suggestedScore  Float
+  semanticSimilarity Float
+  missingKeywords String      // JSON-serialized string[]
+  feedback        String
+  createdAt       DateTime    @default(now())
+
+  @@index([submissionId])
+  @@index([questionId])
+}
+
+/// Lightweight metadata for rubric JSON files. The full rubric definition
+/// lives on disk in /rubrics/*.json; this table just records which rubrics
+/// have been used and any user notes.
+model RubricMeta {
+  id          String   @id @default(cuid())
+  /// File basename without extension, e.g. "data-science"
+  slug        String   @unique
+  title       String
+  description String   @default("")
+  /// Number of questions in the rubric (denormalised for quick UI display)
+  questionCount Int   @default(0)
+  /// Total possible score
+  totalMarks  Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
