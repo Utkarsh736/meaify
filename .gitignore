@@ -1,0 +1,60 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+.next/
+out/
+build/
+
+# misc
+.DS_Store
+*.pem
+*.log
+dev.log
+server.log
+local-*
+.claude
+.z-ai-config
+.zscripts/
+skills/
+prompt
+
+# env
+.env
+.env.*
+!.env.example
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# vercel
+.vercel
+
+# Python (uv-managed utilities)
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Local SQLite / Prisma
+db/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+prisma/prisma/
+prisma/*.db
+
+# OS
+Thumbs.db

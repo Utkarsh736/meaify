@@ -1,0 +1,405 @@
+/* ============================================================
+   Meaify — Global Stylesheet (Editorial Workspace)
+   ------------------------------------------------------------
+   Academic Modernism: warm off-white, deep ink blue, generous
+   margins, 1px subtle borders, no gradients, no shimmer.
+   Quiet, precise, intellectual, highly readable.
+
+   ┌────────────────────────────────────────────────────────┐
+   │  HOW TO CUSTOMIZE                                      │
+   ├────────────────────────────────────────────────────────┤
+   │  1. Theme tokens — search for `:root` below            │
+   │     --background, --card, --foreground, --primary,     │
+   │     --border, --radius                                 │
+   │  2. Semantic grading colors (sage/ochre/terracotta)   │
+   │     --excellent, --needs-work, --warning               │
+   │  3. Fonts — Typography block                           │
+   │     --font-display (Instrument Serif)                  │
+   │     --font-sans     (Inter)                             │
+   │     --font-mono     (Geist Mono)                        │
+   │  4. Spacing rhythm — search for `Editorial rhythm`    │
+   └────────────────────────────────────────────────────────┘
+   ============================================================ */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant light (&:is(.light *));
+
+/* ------------------------------------------------------------
+   Tailwind theme wiring
+   ------------------------------------------------------------ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Semantic grading colors — muted, not childish */
+  --color-excellent: var(--excellent);
+  --color-excellent-foreground: var(--excellent-foreground);
+  --color-needs-work: var(--needs-work);
+  --color-needs-work-foreground: var(--needs-work-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Fonts — Instrument Serif for display, Inter for UI, Geist Mono for data */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular",
+    "JetBrains Mono", "Fira Code", Consolas, monospace;
+  --font-display: var(--font-instrument-serif), "Instrument Serif",
+    ui-serif, Georgia, "Times New Roman", serif;
+
+  /* Radius — soft but not bubbly */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-2xl: 10px;
+
+  /* Charts — muted academic palette */
+  --color-chart-1: var(--primary);
+  --color-chart-2: var(--excellent);
+  --color-chart-3: var(--warning);
+  --color-chart-4: var(--needs-work);
+  --color-chart-5: oklch(0.55 0.05 250);
+}
+
+/* ============================================================
+   LIGHT THEME  ←  default
+   Warm off-white, ink blue accent, near-invisible borders.
+   ============================================================ */
+:root,
+.light {
+  /* Surfaces — never pure white, always warm */
+  --background: #FAFAF9;        /* warm off-white (stone-50) */
+  --card: #FFFFFF;             /* slightly lighter than page for cards */
+  --popover: #FFFFFF;
+
+  --foreground: #1C1917;       /* stone-900 — warm near-black */
+  --card-foreground: #1C1917;
+  --popover-foreground: #1C1917;
+
+  --muted: #F5F5F4;            /* stone-100 */
+  --muted-foreground: #57534E; /* stone-600 */
+  --secondary: #F5F5F4;
+  --secondary-foreground: #1C1917;
+
+  /* Borders — the secret sauce: extremely subtle warm borders */
+  --border: rgba(28, 25, 23, 0.08);
+  --input: rgba(28, 25, 23, 0.12);
+  --ring: #1E375A;             /* ink blue focus ring */
+
+  /* Accent — deep ink blue, single muted accent */
+  --primary: #1E375A;          /* deep ink blue */
+  --primary-foreground: #FAFAF9;
+  --accent: #1E375A;
+  --accent-foreground: #FAFAF9;
+
+  /* Semantic grading colors — muted, not harsh */
+  --excellent: #5E7A5A;        /* muted sage */
+  --excellent-foreground: #FFFFFF;
+  --needs-work: #B85450;       /* soft terracotta */
+  --needs-work-foreground: #FFFFFF;
+  --warning: #A87F3D;          /* warm ochre */
+  --warning-foreground: #FFFFFF;
+  --destructive: #B85450;
+  --destructive-foreground: #FFFFFF;
+
+  /* Sidebar — sits on page bg, no separate surface */
+  --sidebar: transparent;
+  --sidebar-foreground: #57534E;
+  --sidebar-primary: #1E375A;
+  --sidebar-primary-foreground: #FAFAF9;
+  --sidebar-accent: rgba(30, 55, 90, 0.04);
+  --sidebar-accent-foreground: #1C1917;
+  --sidebar-border: rgba(28, 25, 23, 0.08);
+  --sidebar-ring: #1E375A;
+}
+
+/* ============================================================
+   DARK THEME — warm charcoal, never pure black.
+   Kept as opt-in via .dark class on <html>.
+   ============================================================ */
+.dark {
+  --background: #1A1816;       /* warm charcoal (not pure black) */
+  --card: #232020;
+  --popover: #232020;
+  --foreground: #F5F5F4;
+  --card-foreground: #F5F5F4;
+  --popover-foreground: #F5F5F4;
+  --muted: #2A2725;
+  --muted-foreground: #A8A29E;
+  --secondary: #2A2725;
+  --secondary-foreground: #F5F5F4;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #6B8FB8;
+
+  --primary: #8DA9C4;           /* lighter ink blue for dark bg */
+  --primary-foreground: #1A1816;
+  --accent: #8DA9C4;
+  --accent-foreground: #1A1816;
+
+  --excellent: #8DA682;
+  --excellent-foreground: #1A1816;
+  --needs-work: #D6827D;
+  --needs-work-foreground: #1A1816;
+  --warning: #C9A66B;
+  --warning-foreground: #1A1816;
+  --destructive: #D6827D;
+  --destructive-foreground: #1A1816;
+
+  --sidebar: transparent;
+  --sidebar-foreground: #A8A29E;
+  --sidebar-primary: #8DA9C4;
+  --sidebar-primary-foreground: #1A1816;
+  --sidebar-accent: rgba(141, 169, 196, 0.06);
+  --sidebar-accent-foreground: #F5F5F4;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #8DA9C4;
+}
+
+/* ============================================================
+   Typography
+   ------------------------------------------------------------
+   To swap fonts: edit ONE line below.
+   Instrument Serif — large editorial headings (italic accents too)
+   Inter — UI text, body, all small text
+   Geist Mono — grades, percentages, timestamps, code
+   ============================================================ */
+:root {
+  --font-display: var(--font-instrument-serif), "Instrument Serif",
+    ui-serif, Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular",
+    "JetBrains Mono", "Fira Code", Consolas, monospace;
+}
+
+/* ============================================================
+   Base layer
+   ============================================================ */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    color-scheme: light;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-feature-settings: "cv01", "cv02", "ss01";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Display headings — Instrument Serif, tight tracking */
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+    font-weight: 400;
+    line-height: 1.15;
+  }
+  h4, h5, h6 {
+    font-family: var(--font-sans);
+    letter-spacing: -0.01em;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  /* Body text — generous line-height for readability */
+  p {
+    line-height: 1.65;
+  }
+  /* Small caps eyebrow — for section labels */
+  .eyebrow,
+  .text-eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  /* Selection — subtle ink-blue tint */
+  ::selection {
+    background: rgba(30, 55, 90, 0.12);
+    color: var(--foreground);
+  }
+  /* Custom scrollbar — minimal */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(28, 25, 23, 0.14);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(28, 25, 23, 0.22);
+  }
+  /* Custom keyboard focus — visible, refined */
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 1px var(--ring), 0 0 0 4px rgba(30, 55, 90, 0.12);
+    border-radius: var(--radius-md);
+  }
+  /* Buttons and links get a tighter focus ring */
+  button:focus-visible,
+  a:focus-visible {
+    box-shadow: 0 0 0 1px var(--ring), 0 0 0 3px rgba(30, 55, 90, 0.16);
+  }
+}
+
+/* ============================================================
+   Editorial utilities — calm, restrained
+   ============================================================ */
+@layer utilities {
+  .font-display { font-family: var(--font-display); }
+  .font-sans    { font-family: var(--font-sans); }
+  .font-mono    { font-family: var(--font-mono); }
+
+  /* Italic serif accent — for inline emphasis in headings */
+  .italic-display {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  /* Tabular numbers — for grades and percentages */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* Card — single 1px border, no shadow */
+  .card-editorial {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Hover — slightly darker border, NO translateY, NO background change */
+  .card-hover-editorial {
+    transition: border-color 0.2s ease-out, background 0.2s ease-out;
+  }
+  .card-hover-editorial:hover {
+    border-color: rgba(28, 25, 23, 0.18);
+  }
+
+  /* Section rule — thin horizontal divider */
+  .editorial-rule {
+    height: 1px;
+    background: var(--border);
+    border: 0;
+    margin: 0;
+  }
+
+  /* Page margin — generous, breathable */
+  .page-margin {
+    max-width: 64rem;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .page-margin { padding-inline: 2.5rem; }
+  }
+  @media (min-width: 1024px) {
+    .page-margin { padding-inline: 3rem; }
+  }
+
+  /* Slow pulse for skeletons (NOT shimmer, NOT spinners) */
+  .pulse-slow {
+    animation: pulse-slow 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.5; }
+  }
+
+  /* Calm fade-in — used sparingly, very subtle */
+  .fade-in {
+    animation: fade-in 0.3s ease-out both;
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* Single-dot indicator — calm pulse */
+  .dot-pulse {
+    animation: dot-pulse 2s ease-in-out infinite;
+  }
+  @keyframes dot-pulse {
+    0%, 100% { opacity: 0.3; }
+    50%      { opacity: 1; }
+  }
+
+  /* Semantic text colors — for inline score indicators */
+  .text-excellent  { color: var(--excellent); }
+  .text-needs-work { color: var(--needs-work); }
+  .text-warning    { color: var(--warning); }
+
+  /* Citation pill — subtle, refined */
+  .citation-pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    padding: 0.0625rem 0.4375rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--muted-foreground);
+    background: transparent;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    cursor: pointer;
+  }
+  .citation-pill:hover {
+    color: var(--primary);
+    border-color: rgba(30, 55, 90, 0.3);
+    background: rgba(30, 55, 90, 0.04);
+  }
+}
+
+/* ============================================================
+   Component hints
+   ============================================================ */
+@layer components {
+  /* Editorial empty state — no icon-in-box, just text */
+  .empty-state-editorial {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 3rem 0;
+    max-width: 28rem;
+  }
+}

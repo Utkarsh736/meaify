@@ -1,0 +1,31 @@
+{
+  "slug": "mathematics",
+  "title": "Mathematics — Mock Exam",
+  "description": "Mock rubric for a 4-question math exam (algebra, geometry, calculus, statistics).",
+  "questions": {
+    "1": {
+      "question": "Solve the quadratic equation x^2 - 5x + 6 = 0 by factorization.",
+      "model_answer": "Factorize as (x-2)(x-3) = 0. Roots are x = 2 and x = 3.",
+      "keywords": ["factor", "roots", "two", "solutions", "x-2", "x-3"],
+      "max_marks": 4.0
+    },
+    "2": {
+      "question": "Find the area of a circle with diameter 14 cm (use pi = 3.14).",
+      "model_answer": "Radius r = d/2 = 7 cm. Area = pi * r^2 = 3.14 * 49 = 153.86 sq cm.",
+      "keywords": ["radius", "diameter", "area", "153.86", "pi", "square"],
+      "max_marks": 3.0
+    },
+    "3": {
+      "question": "Differentiate y = 3x^2 + 2x with respect to x.",
+      "model_answer": "dy/dx = 6x + 2. Apply power rule term-wise.",
+      "keywords": ["derivative", "power", "rule", "6x", "differentiate", "term"],
+      "max_marks": 4.0
+    },
+    "4": {
+      "question": "What is the median of the dataset 4, 7, 2, 9, 5, 1, 8?",
+      "model_answer": "Sort the data: 1,2,4,5,7,8,9. Median = middle value = 5.",
+      "keywords": ["sort", "middle", "5", "ascending", "central"],
+      "max_marks": 3.0
+    }
+  }
+}
