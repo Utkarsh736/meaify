@@ -5,7 +5,8 @@
    ============================================================ */
 
 import { cosineSimilarity } from "./similarity";
-import { stemSentence } from "./stemmer";
+import { matchKeywords } from "./keywords";
+import { hybridFraction, marksFromFraction } from "./weights";
 import { embedText } from "@/lib/ai/embeddings";
 import type { RubricQuestion } from "@/types";
 
@@ -26,6 +27,7 @@ export interface EvalOutput {
   keywordScore: number;
   maxMarks: number;
   suggestedScore: number;
+  feedback: string;
 }
 
 /**
@@ -57,6 +59,7 @@ export async function evaluateAnswer(input: EvalInput): Promise<EvalOutput> {
       keywordScore: 0,
       maxMarks: question.maxMarks,
       suggestedScore: 0,
+      feedback: "",
     };
   }
 
@@ -66,29 +69,9 @@ export async function evaluateAnswer(input: EvalInput): Promise<EvalOutput> {
     embedText(question.modelAnswer),
   ]);
   const semanticSimilarity = cosineSimilarity(embStudent, embModel);
-
-  // Stem-tolerant keyword match
-  const studentStems = stemSentence(studentAnswer);
-  const found = question.keywords.filter(
-    (kw) => {
-      // Stem the keyword (one word or a multi-word phrase — for the latter,
-      // stem each token and require all of them present).
-      const tokens = kw.toLowerCase().match(/\b[\w-]+\b/g) ?? [];
-      return tokens.every((t) => studentStems.has(t.replace(/-/g, "")) || studentStems.has(t));
-    }
-  );
-  // For multi-word keywords, also do a Porter stem direct comparison
-  const foundStem = new Set(found);
-  const missingKeywords = question.keywords.filter((kw) => !foundStem.has(kw));
-
-  const keywordScore = question.keywords.length
-    ? found.length / question.keywords.length
-    : 1;
-
-  const raw =
-    (0.6 * Math.max(0, semanticSimilarity)) + (0.4 * keywordScore);
-  const suggestedScore = Math.min(
-    Math.round(raw * question.maxMarks * 100) / 100,
+  const kw = matchKeywords(studentAnswer, question.keywords);
+  const suggestedScore = marksFromFraction(
+    hybridFraction(semanticSimilarity, kw.score),
     question.maxMarks
   );
 
@@ -98,12 +81,13 @@ export async function evaluateAnswer(input: EvalInput): Promise<EvalOutput> {
     question: question.question,
     modelAnswer: question.modelAnswer,
     keywords: question.keywords,
-    missingKeywords,
-    foundKeywords: found,
+    missingKeywords: kw.missing,
+    foundKeywords: kw.found,
     semanticSimilarity,
-    keywordScore,
+    keywordScore: kw.score,
     maxMarks: question.maxMarks,
     suggestedScore,
+    feedback: "",
   };
 }
 
