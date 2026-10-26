@@ -1,37 +1,35 @@
 /* POST /api/grade
- * Body: {
- *   imageBase64: string,
- *   mimeType?: string,
- *   rubricSlug: string,
- *   submissionSlug?: string  // file-name stem, auto-generated if missing
- * }
- * Returns: full GradingReport (OCR → segment → evaluate → feedback).
- *
- * This is the main pipeline endpoint — it runs the same flow as the
- * original Colab `process_submission` but in TypeScript and persisted
- * to SQLite via Prisma.
+ * Body: { imageBase64, mimeType?, rubricSlug, fileName?, provider? }
+ * Pipeline: validate image → OCR → quality gate → segment → score → feedback → persist.
  */
 import { NextResponse } from "next/server";
 import { runOcr } from "@/lib/ai/ocr";
 import { loadRubric, loadRubricQuestions } from "@/lib/rubric/loader";
+import { rubricSha256 } from "@/lib/rubric/hash";
 import { groupByQuestion } from "@/lib/grading/segmenter";
 import { evaluateAll } from "@/lib/grading/evaluator";
 import { generateFeedback } from "@/lib/ai/feedback";
 import { saveGradingReport } from "@/lib/db/queries";
 import { hasOcrProvider } from "@/lib/env";
+import { storeUpload, UploadError } from "@/lib/uploads";
+import { assessTranscript } from "@/lib/security/untrusted";
+import { logStage, requestId } from "@/lib/observability";
 import type { GradingReport, RubricQuestion } from "@/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
+  const rid = requestId();
+  const headers = { "x-request-id": rid };
+
   if (!hasOcrProvider()) {
     return NextResponse.json(
       {
         error:
           "No OCR provider configured. Set GROQ_API_KEY or GEMINI_API_KEY in .env.local.",
       },
-      { status: 503 }
+      { status: 503, headers }
     );
   }
 
@@ -44,38 +42,42 @@ export async function POST(req: Request) {
   };
 
   if (!body.imageBase64) {
-    return NextResponse.json({ error: "imageBase64 is required" }, { status: 400 });
+    return NextResponse.json({ error: "imageBase64 is required" }, { status: 400, headers });
   }
   if (!body.rubricSlug) {
-    return NextResponse.json({ error: "rubricSlug is required" }, { status: 400 });
+    return NextResponse.json({ error: "rubricSlug is required" }, { status: 400, headers });
   }
 
   try {
-    // 1. Load rubric
+    const stored = await storeUpload(body.imageBase64, body.mimeType ?? "image/jpeg");
+    logStage(rid, "upload", { bytes: stored.bytes, mime: stored.mimeType });
+
     const rubric = await loadRubric(body.rubricSlug);
     const questions: RubricQuestion[] = await loadRubricQuestions(body.rubricSlug);
+    const sha = await rubricSha256(body.rubricSlug);
 
-    // 2. OCR (Groq → Gemini failsafe)
     const ocr = await runOcr(body.imageBase64, {
-      mimeType: body.mimeType ?? "image/jpeg",
+      mimeType: stored.mimeType,
       provider: body.provider ?? "auto",
     });
+    logStage(rid, "ocr", {
+      provider: ocr.provider,
+      latencyMs: ocr.latencyMs,
+      chars: ocr.text.length,
+    });
 
-    if (!ocr.text || ocr.text.includes("Error")) {
+    const quality = assessTranscript(ocr.text);
+    if (!quality.ok) {
       return NextResponse.json(
-        { error: "OCR produced no usable text", raw: ocr.text },
-        { status: 422 }
+        { error: quality.reason, raw: ocr.text },
+        { status: 422, headers }
       );
     }
 
-    // 3. Segment
     const rubricKeys = Object.keys(rubric.questions);
     const segmented = groupByQuestion(ocr.text, rubricKeys);
-
-    // 4. Evaluate (concurrent — embeddings + keyword match)
     const evaluations = await evaluateAll(segmented, questions);
 
-    // 5. AI feedback (concurrent per question)
     const feedbacks = await Promise.all(
       evaluations.map((e) =>
         generateFeedback({
@@ -89,15 +91,15 @@ export async function POST(req: Request) {
     );
     evaluations.forEach((e, i) => (e.feedback = feedbacks[i]));
 
-    // 6. Persist to SQLite
     const submissionSlug =
       body.fileName?.split(".")[0]?.replace(/[^a-z0-9_-]/gi, "-").toLowerCase() ||
       `submission-${Date.now()}`;
     const submission = await saveGradingReport({
       slug: submissionSlug,
       fileName: body.fileName ?? `${submissionSlug}.jpg`,
-      imageUrl: `data:${body.mimeType ?? "image/jpeg"};base64,${body.imageBase64.slice(0, 64)}…`,
+      imageUrl: stored.imageUrl,
       rubricSlug: body.rubricSlug,
+      rubricSha256: sha,
       ocr,
       segmented,
       evaluations,
@@ -113,12 +115,19 @@ export async function POST(req: Request) {
       totalMax: submission.totalMax,
     };
 
-    return NextResponse.json(report);
+    logStage(rid, "graded", {
+      submissionId: submission.id,
+      totalScore: submission.totalScore,
+      rubricSha256: sha.slice(0, 12),
+    });
+
+    return NextResponse.json(report, { headers });
   } catch (e) {
-    console.error("[/api/grade] error:", e);
+    const status = e instanceof UploadError ? 400 : 500;
+    logStage(rid, "error", { status, message: (e as Error).message });
     return NextResponse.json(
       { error: (e as Error).message },
-      { status: 500 }
+      { status, headers }
     );
   }
 }

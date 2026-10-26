@@ -47,8 +47,9 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Local SQLite / Prisma
-db/
+# Local SQLite / Prisma (root only — do not ignore src/lib/db)
+/db/
+/data/
 *.db
 *.db-journal
 *.db-wal

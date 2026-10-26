@@ -17,10 +17,12 @@ model Submission {
   /// File name or slugified identifier (e.g. "student-1-sheet")
   slug        String       @unique
   fileName    String
-  /// Relative path or data-URL of the uploaded sheet image
+  /// Relative URL served by /api/uploads (files live on disk, never as data-URLs)
   imageUrl    String
-  /// Which rubric file was used (e.g. "data-science.json")
+  /// Which rubric file was used (e.g. "data-science")
   rubricId    String
+  /// sha256 of the rubric JSON bytes at grading time
+  rubricSha256 String    @default("")
   /// Total weighted score across all answered questions
   totalScore  Float        @default(0)
   /// Sum of max_marks across all rubric questions
