@@ -2,124 +2,101 @@
 
 > Upload a handwritten answer sheet → AI-assisted OCR → rubric grading → AI feedback → voice-enabled chatbot.
 
-**Meaify** is an AI-assisted exam evaluator for teachers. Point it at a photo of a handwritten answer sheet; it runs OCR, scores against a rubric, generates per-question feedback, and keeps a voice-enabled assistant for follow-up questions.
+**Meaify** is an AI-assisted exam evaluator for a single teacher. Point it at a photo of a handwritten answer sheet; it runs OCR, scores against a rubric, generates per-question feedback, and keeps a voice-enabled assistant for follow-up questions.
 
-Built with **Next.js 16 · TypeScript · Tailwind CSS 4 · shadcn/ui · Prisma + SQLite**.  
-Powered by **Groq** (primary) with **Gemini** as failsafe and **Hugging Face** for embeddings.
+Built with **Next.js 16 · TypeScript · Tailwind CSS 4 · shadcn/ui · Prisma + SQLite**.
+Primary provider is **Groq**, with **Gemini** as failsafe and **Hugging Face** for embeddings.
 
 ## Features
 
-- **Vision OCR** — Groq vision models with Gemini fallback for handwritten sheets.
-- **Hybrid rubric scoring** — `0.6 × semantic similarity + 0.4 × keyword match`, with Porter-stemmer tolerant matching.
-- **AI feedback** — regeneratable per-question feedback grounded in the rubric.
-- **Voice chatbot** — Web Speech API for input/output; Groq Whisper fallback when the browser lacks SpeechRecognition.
-- **Dashboard** — overview of recent tasks, quick chat, and stats.
-- **Command palette** — fast navigation and actions (`⌘K` / `Ctrl+K`).
-- **Rubric manager** — rubrics live as JSON files under `/rubrics/`; easy to version and switch.
-- **Grading history** — every submission persisted to SQLite via Prisma.
-- **Editorial UI** — clean academic modernism (warm off-white, deep ink, generous spacing).
-
-## Screenshots
-
-Screenshots live in [`download/`](./download/). They show the dashboard, grade view (split-screen), assistant, rubrics, history, settings, and command palette.
+- **Vision OCR** — Groq vision with Gemini fallback.
+- **Hybrid rubric scoring** — default `0.6 × semantic + 0.4 × keyword` (Porter stemmer). Override with `SCORE_SEMANTIC_WEIGHT` / `SCORE_KEYWORD_WEIGHT` only after a labeled sweep. Those defaults are not yet fit on human scores.
+- **AI feedback** — student text is treated as untrusted data so instructions written on the sheet cannot rewrite the score.
+- **Voice chatbot** — Web Speech API, Groq Whisper fallback.
+- **Dashboard, command palette** (`⌘K`), rubric browser, history.
+- **Audit trail** — OCR provider, latency, and sha256 of the rubric file on every submission.
+- **Upload limits** — JPEG/PNG/WebP, 10 MB, files on disk (not data-URLs in SQLite).
+- **Health probe** — `GET /api/health` checks that configured Groq model ids still exist.
 
 ## Quick start
 
 ```bash
-# 1. Install JavaScript dependencies
-bun install          # or: npm install / pnpm install
-
-# 2. Configure environment
+bun install
 cp .env.example .env.local
-# edit .env.local — add GROQ_API_KEY (and optionally GEMINI_API_KEY, HF_TOKEN)
-
-# 3. Push the SQLite schema
-bun run db:push      # or: npm run db:push
-
-# 4. Run the dev server
+# add GROQ_API_KEY and, preferably, GEMINI_API_KEY
+bun run db:push
 bun run dev          # → http://localhost:3000
 ```
 
 ### Optional Python utilities
 
-The Next.js app does **not** require Python. The `pyproject.toml` + `uv.lock` exist so you can run the original Colab-style pipeline or offline embeddings:
+The Next.js app does not require Python.
 
 ```bash
 uv sync
 uv run python scripts/notebook_pipeline.py
 ```
 
+## Deployment
+
+Single-teacher, local. There is no auth layer. Do not put this on the public internet while it stores student photos. For a shared demo, put a secret gate and rate limits in front first.
+
+```bash
+docker compose up --build
+```
+
+SQLite and uploads persist on the `meaify-data` volume.
+
+Groq retired `llama-3.3-70b-versatile` and Llama 4 Scout from the free tier on 2026-08-16. Defaults are `qwen/qwen3.8-27b` (vision) and `openai/gpt-oss-120b` (text). Confirm them in the [Groq console](https://console.groq.com/docs/models) if `/api/health` lists them as missing.
+
+## Tests
+
+```bash
+bun run test
+bun run eval:smoke
+```
+
+The smoke slice is deterministic and needs no API keys: blank answers, keyword stuffing, score monotonicity, injection redaction, upload caps, and schema checks on `/rubrics`. CI is `.github/workflows/ci.yml`.
+
+A labeled handwritten dataset (synthetic only — never real student work) is still required before the hybrid weights can be published as tuned. That dataset is not in this repo.
+
 ## Project structure
 
 ```
-.
-├── src/
-│   ├── app/
-│   │   ├── api/                 # OCR, grade, feedback, chat, transcribe, rubric, history
-│   │   ├── globals.css          # Theme tokens (edit to reskin)
-│   │   ├── layout.tsx
-│   │   └── page.tsx             # Single-page app (dashboard / grade / assistant / …)
-│   ├── components/
-│   │   ├── brand/               # Logo
-│   │   ├── dashboard/           # Dashboard, stats, recent tasks, quick chat
-│   │   ├── grade/               # Upload, OCR, scoring, feedback, split views
-│   │   ├── chat/                # Chat panel, voice controls
-│   │   ├── layout/              # AppShell, CommandPalette
-│   │   ├── rubric/              # Rubric browser + settings
-│   │   ├── history/             # Submission history
-│   │   └── ui/                  # shadcn/ui primitives
-│   ├── hooks/                   # Speech recognition / synthesis
-│   ├── lib/
-│   │   ├── ai/                  # Groq, Gemini, OCR, embeddings, feedback
-│   │   ├── grading/             # Stemmer, segmenter, evaluator, similarity
-│   │   ├── rubric/              # JSON rubric loader
-│   │   └── db/                  # Prisma client + queries
-│   └── types/
-├── prisma/schema.prisma
-├── rubrics/                     # data-science.json, mathematics.json, …
-├── scripts/                     # UV-managed Python helpers (optional)
-├── download/                    # UI screenshots
-├── pyproject.toml               # Optional Python utils
-├── uv.lock
-└── package.json
+src/app/api/          ocr, grade, feedback, chat, transcribe, rubric, history, health, uploads
+src/lib/grading/      stemmer, segmenter, keywords, weights, evaluator
+src/lib/ai/           groq, gemini, ocr, embeddings, feedback
+src/lib/rubric/       JSON loader + sha256
+prisma/schema.prisma
+rubrics/              data-science, mathematics, general-knowledge
+scripts/              optional uv Python helpers
 ```
 
 ## Configuration
 
-| Variable | Purpose | Where to get |
+| Variable | Purpose | Default |
 | --- | --- | --- |
-| `GROQ_API_KEY` | Vision OCR + text + Whisper | https://console.groq.com |
-| `GEMINI_API_KEY` | Failsafe for OCR & text | https://aistudio.google.com |
-| `HF_TOKEN` | Sentence embeddings | https://huggingface.co/settings/tokens |
-| `DATABASE_URL` | SQLite path | Default: `file:./prisma/dev.db` |
-
-Optional model overrides (see `.env.example`):  
-`GROQ_VISION_MODEL`, `GROQ_TEXT_MODEL`, `GROQ_WHISPER_MODEL`, `GEMINI_MODEL`.
-
-All keys are optional; the app degrades gracefully when a provider is missing.
+| `GROQ_API_KEY` | OCR, text, Whisper | — |
+| `GEMINI_API_KEY` | Failsafe OCR and text | — |
+| `HF_TOKEN` | Embeddings | — |
+| `DATABASE_URL` | SQLite | `file:./prisma/dev.db` |
+| `GROQ_VISION_MODEL` | Vision OCR | `qwen/qwen3.8-27b` |
+| `GROQ_TEXT_MODEL` | Feedback and chat | `openai/gpt-oss-120b` |
+| `GROQ_WHISPER_MODEL` | Voice fallback | `whisper-large-v3-turbo` |
+| `GEMINI_MODEL` | Failsafe | `gemini-2.5-flash` |
+| `UPLOADS_DIR` | Sheet images | `./data/uploads` |
 
 ## Scripts
 
 | Command | Description |
 | --- | --- |
-| `bun run dev` | Start Next.js dev server on port 3000 |
-| `bun run build` | Production build (standalone output) |
-| `bun run start` | Run the standalone production server |
-| `bun run db:push` | Push Prisma schema to SQLite |
-| `bun run db:generate` | Generate Prisma client |
+| `bun run dev` | Dev server on port 3000 |
+| `bun run build` / `start` | Standalone production build |
+| `bun run db:push` | Push Prisma schema |
 | `bun run lint` | ESLint |
-
-## Tech notes
-
-- **Standalone output** — `next.config.ts` sets `output: "standalone"` for easy container / single-binary deploys.
-- **Rubrics** — plain JSON under `/rubrics/`. Drop a new file and it appears in the UI.
-- **Database** — SQLite keeps the project self-contained; swap `DATABASE_URL` for Postgres if you need multi-user production later.
-- **Voice** — prefers the browser Web Speech API; falls back to Groq Whisper for transcription when needed.
+| `bun run test` | Vitest |
+| `bun run eval:smoke` | Deterministic grading slice |
 
 ## License
 
-MIT (or your preferred license — update this section as needed).
-
----
-
-Built with ❤️ for teachers who grade by hand.
+MIT
