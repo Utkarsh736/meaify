@@ -22,14 +22,15 @@ export const env = {
   /** Hugging Face access token (read scope) for embeddings. */
   HF_TOKEN: required("HF_TOKEN"),
 
-  /** Default Groq models — override in .env to switch models. */
-  GROQ_VISION_MODEL: process.env.GROQ_VISION_MODEL || "meta-llama/llama-3.2-90b-vision-preview",
-  GROQ_TEXT_MODEL: process.env.GROQ_TEXT_MODEL || "llama-3.3-70b-versatile",
+  /** Groq vision. Llama 4 Scout left the free tier 2026-08-16; Qwen 3.8 27B is the current vision model. */
+  GROQ_VISION_MODEL: process.env.GROQ_VISION_MODEL || "qwen/qwen3.8-27b",
+  /** llama-3.3-70b-versatile was discontinued for Free/Developer on 2026-08-16. */
+  GROQ_TEXT_MODEL: process.env.GROQ_TEXT_MODEL || "openai/gpt-oss-120b",
   GROQ_WHISPER_MODEL: process.env.GROQ_WHISPER_MODEL || "whisper-large-v3-turbo",
-  GROQ_EMBEDDING_MODEL: process.env.GROQ_EMBEDDING_MODEL || "", // Groq doesn't host embeddings today
+  GROQ_EMBEDDING_MODEL: process.env.GROQ_EMBEDDING_MODEL || "",
 
-  /** Gemini failsafe model. */
-  GEMINI_MODEL: process.env.GEMINI_MODEL || "gemini-2.0-flash-exp",
+  /** Stable vision+text failsafe. Override if your key's model list differs. */
+  GEMINI_MODEL: process.env.GEMINI_MODEL || "gemini-2.5-flash",
 } as const;
 
 /** True when at least one OCR provider is configured. */
