@@ -1,0 +1,15 @@
+services:
+  meaify:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    environment:
+      DATABASE_URL: file:/data/meaify.db
+      UPLOADS_DIR: /data/uploads
+    volumes:
+      - meaify-data:/data
+
+volumes:
+  meaify-data:

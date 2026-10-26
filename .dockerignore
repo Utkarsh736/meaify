@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+data
+download
+*.db
+.env
+.env.local
+dev.log
+.venv
+__pycache__
